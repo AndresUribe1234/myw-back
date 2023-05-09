@@ -34,8 +34,10 @@ app.use(morgan("dev"));
 
 // Backend routes
 const checkoutRouter = require("./routes/checkoutRoute");
+const authenticationRouter = require("./routes/authenticationRoute");
 
 app.use("/api/checkout", checkoutRouter);
+app.use("/api/authentication", authenticationRouter);
 app.get("/", (req, res) => {
   res.send("Express JS on Vercel for myw app :)");
 });

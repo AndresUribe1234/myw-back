@@ -37,9 +37,9 @@ exports.mercadoPagoCheckout = async (req, res) => {
         email: "AndresUUURRR@gmail.com",
       },
       back_urls: {
-        success: "http://localhost:3000/",
-        failure: "http://localhost:3000/",
-        pending: "http://localhost:3000/",
+        success: "http://localhost:3000/post-mp/success",
+        failure: "http://localhost:3000/post-mp/",
+        pending: "http://localhost:3000/post-mp/",
       },
       auto_return: "approved",
     };
