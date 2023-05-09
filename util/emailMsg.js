@@ -25,6 +25,7 @@ exports.signUpHTML = (token, email) => {
     <button  style="cursor: pointer; margin: 5px; margin-left: auto; margin-right: auto; font-size: 16px; padding: 10px 20px; border-radius: 5px; text-align: center; color: white; background-color: #e0ca3c; border: none; box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);">
     <a href="${process.env.URL_FRONT}/authentication/post-token?from=signup&token=${token}&email=${email}" style="color: #FFFFFF; text-decoration: none;">Haz clic aquí para confirmar tu cuenta</a>
     </button>
+    <a href="${process.env.URL_FRONT}/authentication/post-token?from=signup&token=${token}&email=${email}" style="text-decoration: none;">${process.env.URL_FRONT}/authentication/post-token?from=signup&token=${token}&email=${email}</a>
     <p>Si tienes alguna pregunta o necesitas ayuda con el proceso de registro, no dudes en ponerte en contacto con nuestro equipo de soporte. Estamos aquí para ayudarte en todo lo que necesites.</p>
     <p>¡Gracias por unirte a Max Your Watts! Esperamos que disfrutes de nuestra plataforma y todas las funciones que ofrecemos.</p>
     <p style="font-size: 16px; font-weight: bold;">Atentamente,</p>
