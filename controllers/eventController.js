@@ -1,5 +1,7 @@
 const User = require("../models/userModel");
 const Event = require("../models/eventsModel");
+const moment = require("moment");
+const tz = require("moment-timezone");
 
 exports.createEvent = async (req, res) => {
   try {
@@ -88,6 +90,63 @@ exports.allEvents = async (req, res) => {
     res.status(200).json({
       status: "Success: All created events where fetched!",
       data: { events: allCreatedEvents },
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({
+      status: "Failed: Could not fetch events!",
+      err: err.message,
+    });
+  }
+};
+
+exports.allEventsGroupedByDate = async (req, res) => {
+  try {
+    //1)Find all user created events
+    const allCreatedEventsGroupedByDate = await Event.aggregate([
+      {
+        $addFields: {
+          dateAsString: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: {
+                $toDate: { $subtract: ["$eventDate", { $toLong: 0 }] },
+              },
+              timezone: "America/Bogota",
+            },
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$dateAsString",
+          eventIds: { $push: "$_id" },
+          activityTypes: { $addToSet: "$eventType" },
+          events: {
+            $push: {
+              eventId: "$_id",
+              eventType: "$eventType",
+              eventTitle: "$title",
+              eventDate: "$eventDate",
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          dateAsString: "$_id",
+          eventIds: 1,
+          activityTypes: 1,
+          events: 1,
+          _id: 1,
+        },
+      },
+    ]);
+
+    // 2)Send response to client
+    res.status(200).json({
+      status: "Success: All created events where fetched!",
+      data: { eventsGroupedByDate: allCreatedEventsGroupedByDate },
     });
   } catch (err) {
     console.log(err);

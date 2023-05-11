@@ -24,7 +24,18 @@ const eventSchema = new Schema(
     },
     eventType: {
       type: String,
-      enum: ["Running", "Hiking", "Cycling", "Swimming", "Other"],
+      enum: [
+        "Running",
+        "Hiking",
+        "Cycling",
+        "Swimming",
+        "Other",
+        "Carrera",
+        "Senderismo",
+        "Ciclismo",
+        "Natación",
+        "Otro",
+      ],
       required: true,
     },
     eventDate: {

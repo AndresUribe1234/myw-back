@@ -11,4 +11,6 @@ router
 
 router.route("/all").get(eventController.allEvents);
 
+router.route("/all/grouped").get(eventController.allEventsGroupedByDate);
+
 module.exports = router;
