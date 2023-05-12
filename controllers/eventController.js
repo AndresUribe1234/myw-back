@@ -2,6 +2,7 @@ const User = require("../models/userModel");
 const Event = require("../models/eventsModel");
 const moment = require("moment");
 const tz = require("moment-timezone");
+const mongoose = require("mongoose");
 
 exports.createEvent = async (req, res) => {
   try {
@@ -65,7 +66,6 @@ exports.allCreatedEvents = async (req, res) => {
 
     //2)Find all user created events
     const allCreatedEvents = await Event.find({ organizer: id });
-    console.log(allCreatedEvents);
 
     // 3)Send response to client
     res.status(200).json({
@@ -152,6 +152,31 @@ exports.allEventsGroupedByDate = async (req, res) => {
     console.log(err);
     res.status(400).json({
       status: "Failed: Could not fetch events!",
+      err: err.message,
+    });
+  }
+};
+
+exports.eventDetails = async (req, res) => {
+  try {
+    //1)Get id from params
+    const id = req.params.id;
+    //2)Find all user created events
+    const event = await Event.findById(id);
+    // 3)Throw error if theres no event with this id
+    if (!event) {
+      throw new Error("Theres no event with the id provided!");
+    }
+
+    // 4)Send response to client
+    res.status(200).json({
+      status: "Success: Event details where fetched!",
+      data: { eventDetails: event },
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({
+      status: "Failed: Could not fetch event details!",
       err: err.message,
     });
   }
