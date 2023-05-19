@@ -7,7 +7,7 @@ const mongoose = require("mongoose");
 exports.createEvent = async (req, res) => {
   try {
     // 1)Get event information from request data
-    const {
+    let {
       title,
       description,
       email,
@@ -15,6 +15,9 @@ exports.createEvent = async (req, res) => {
       eventDate,
       registrationFee,
       maxParticipants,
+      modalityType,
+      suscriptionType,
+      nameOrganizer,
     } = req.body;
 
     // 2)Check if information is missing
@@ -24,7 +27,10 @@ exports.createEvent = async (req, res) => {
       !email ||
       !eventType ||
       !eventDate ||
-      !maxParticipants
+      !maxParticipants ||
+      !modalityType ||
+      !suscriptionType ||
+      !nameOrganizer
     ) {
       throw new Error("Information needed to create event is missing!");
     }
@@ -36,6 +42,15 @@ exports.createEvent = async (req, res) => {
       throw new Error("User who wants to create the event does not exist!");
     }
 
+    // 4)Check if type of suscription is free type of event should be 0
+    console.log(suscriptionType === "Gratuita");
+    if (suscriptionType === "Gratuita") {
+      console.log("inside");
+      registrationFee = 0;
+    }
+
+    console.log(req.body);
+
     const newEvent = await Event.create({
       title,
       description,
@@ -44,6 +59,9 @@ exports.createEvent = async (req, res) => {
       eventDate,
       registrationFee,
       maxParticipants,
+      modalityType,
+      suscriptionType,
+      nameOrganizer,
     });
 
     // 5)Send response to client
@@ -84,12 +102,28 @@ exports.allCreatedEvents = async (req, res) => {
 exports.allEvents = async (req, res) => {
   try {
     //1)Find all user created events
-    const allCreatedEvents = await Event.find();
+    const allCreatedEvents = await Event.find().sort({ eventDate: 1 });
 
-    // 2)Send response to client
+    // 2)Upcoming events
+    const currentDate = new Date();
+
+    const upcomingEvents = await Event.find({
+      eventDate: { $gte: currentDate },
+    }).sort({ eventDate: 1 });
+
+    // 3)Old events
+    const pastEvents = await Event.find({
+      eventDate: { $lt: currentDate },
+    }).sort({ eventDate: -1 });
+
+    // 4)Send response to client
     res.status(200).json({
       status: "Success: All created events where fetched!",
-      data: { events: allCreatedEvents },
+      data: {
+        events: allCreatedEvents,
+        futureEvents: upcomingEvents,
+        pastEvents: pastEvents,
+      },
     });
   } catch (err) {
     console.log(err);

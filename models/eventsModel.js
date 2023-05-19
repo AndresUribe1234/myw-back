@@ -22,6 +22,17 @@ const eventSchema = new Schema(
       ref: "User",
       required: true,
     },
+    nameOrganizer: { type: String, required: true },
+    suscriptionType: {
+      type: String,
+      enum: ["Gratuita", "Pagada"],
+      required: true,
+    },
+    modalityType: {
+      type: String,
+      enum: ["Virtual", "Presencial"],
+      required: true,
+    },
     eventType: {
       type: String,
       enum: [

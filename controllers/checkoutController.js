@@ -16,6 +16,19 @@ exports.testMiddleware = async (req, res) => {
 
 exports.mercadoPagoCheckout = async (req, res) => {
   try {
+    // Extract items for preference
+    console.log(req.body);
+    const {
+      title,
+      currency_id,
+      unit_price,
+      email,
+      name,
+      surname,
+      phone,
+      area_code,
+    } = req.body;
+
     console.log("mp token", process.env.MERCADO_PAGO_ACESS_TOKEN);
     mercadopago.configure({
       access_token: process.env.MERCADO_PAGO_ACESS_TOKEN,
@@ -26,20 +39,22 @@ exports.mercadoPagoCheckout = async (req, res) => {
       binary_mode: true,
       items: [
         {
-          title: "My example event",
-          unit_price: 10000,
+          title: title,
+          currency_id: currency_id,
           quantity: 1,
+          unit_price: Number(unit_price),
         },
       ],
       payer: {
-        name: "Andres",
-        surname: "Uribe",
-        email: "AndresUUURRR@gmail.com",
+        name: name,
+        surname: surname,
+        email: email,
+        phone: { area_code, number: Number(phone) },
       },
       back_urls: {
-        success: "http://localhost:3000/post-mp/success",
-        failure: "http://localhost:3000/post-mp/",
-        pending: "http://localhost:3000/post-mp/",
+        success: `${process.env.MP_LINK_SUCCESS}/post-mp/success`,
+        failure: `${process.env.MP_LINK_NOT_SUCCESS}/post-mp`,
+        pending: `${process.env.MP_LINK_NOT_SUCCESS}/post-mp`,
       },
       auto_return: "approved",
     };
@@ -47,7 +62,6 @@ exports.mercadoPagoCheckout = async (req, res) => {
     const mp_response = await mercadopago.preferences.create(preference);
     console.log(mp_response);
 
-    console.log("Entered function inside back..");
     res.status(200).json({
       status: "Success:Mercado pago working!",
       global: { id: mp_response.body.id },
