@@ -219,10 +219,11 @@ exports.eventDetails = async (req, res) => {
 exports.eventRegistration = async (req, res) => {
   try {
     // Get id information from auth middleware
-    const userId = req.user;
+    const userId = req.user._id;
+
     // Get price of registration from and event id from body
     const { eventId, priceRegistration } = req.body;
-    console.log(req.body);
+
     // Find the user and the event from the database
     const user = await User.findById(userId);
     const event = await Event.findById(eventId);
@@ -235,6 +236,13 @@ exports.eventRegistration = async (req, res) => {
       participant.userId.equals(user._id)
     );
     if (isUserRegistered) {
+      throw new Error("User is already registered for this event");
+    }
+
+    const isEventRegistered = user.registeredEvents.some(
+      (participant) => participant.eventId === event._id
+    );
+    if (isEventRegistered) {
       throw new Error("User is already registered for this event");
     }
 
@@ -269,7 +277,7 @@ exports.eventRegistration = async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(400).json({
-      status: "Failed: Could not fetch event details!",
+      status: "Failed: Could not complete registration!",
       err: err.message,
     });
   }
