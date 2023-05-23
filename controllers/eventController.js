@@ -215,3 +215,62 @@ exports.eventDetails = async (req, res) => {
     });
   }
 };
+
+exports.eventRegistration = async (req, res) => {
+  try {
+    // Get id information from auth middleware
+    const userId = req.user;
+    // Get price of registration from and event id from body
+    const { eventId, priceRegistration } = req.body;
+    console.log(req.body);
+    // Find the user and the event from the database
+    const user = await User.findById(userId);
+    const event = await Event.findById(eventId);
+    // Check if user or event doesn't exist
+    if (!user || !event) {
+      throw new Error("User or event not found");
+    }
+    // Check if user is already registered for the event
+    const isUserRegistered = event.registeredParticipants.some((participant) =>
+      participant.userId.equals(user._id)
+    );
+    if (isUserRegistered) {
+      throw new Error("User is already registered for this event");
+    }
+
+    // Check if event registration is full
+    if (event.registeredParticipants.length >= event.maxParticipants) {
+      throw new Error("Event is full");
+    }
+
+    // Create the participant object
+    const participant = {
+      userId: user._id,
+      registrationDate: new Date(),
+      priceRegistration: priceRegistration,
+    };
+
+    // Add the user to the event's participants and update the event
+    event.registeredParticipants.push(participant);
+    await event.save();
+
+    // Add the event to the user's registered events and update the user
+    const userEvent = {
+      eventId: event._id,
+      priceRegistration: priceRegistration,
+    };
+
+    user.registeredEvents.push(userEvent);
+    await user.save();
+
+    res.status(200).json({
+      status: "Success: Registration was created!",
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({
+      status: "Failed: Could not fetch event details!",
+      err: err.message,
+    });
+  }
+};

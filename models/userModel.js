@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
+const Schema = mongoose.Schema;
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -51,6 +52,23 @@ const userSchema = new mongoose.Schema({
   },
   accountVerified: { type: Boolean, default: false },
   lastModified: { type: Date },
+  registeredEvents: {
+    type: [
+      {
+        eventId: {
+          type: Schema.Types.ObjectId,
+          ref: "Event",
+          required: true,
+        },
+        priceRegistration: {
+          type: Number,
+          required: true,
+          min: 0,
+        },
+      },
+    ],
+    default: [],
+  },
 });
 
 // Crypt password

@@ -15,4 +15,8 @@ router.route("/all/grouped").get(eventController.allEventsGroupedByDate);
 
 router.route("/detail/:id").get(eventController.eventDetails);
 
+router
+  .route("/registration")
+  .post(authController.protectRoutes, eventController.eventRegistration);
+
 module.exports = router;

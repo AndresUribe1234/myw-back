@@ -94,6 +94,11 @@ const eventSchema = new Schema(
             required: true,
             default: Date.now,
           },
+          priceRegistration: {
+            type: Number,
+            required: true,
+            min: 0,
+          },
         },
       ],
       default: [],
