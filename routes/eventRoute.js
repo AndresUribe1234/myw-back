@@ -19,4 +19,8 @@ router
   .route("/registration")
   .post(authController.protectRoutes, eventController.eventRegistration);
 
+router
+  .route("/user")
+  .get(authController.protectRoutes, eventController.eventsPerUser);
+
 module.exports = router;

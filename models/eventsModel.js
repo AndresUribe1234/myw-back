@@ -99,8 +99,16 @@ const eventSchema = new Schema(
             required: true,
             min: 0,
           },
+          mp_ref: {
+            type: Number,
+          },
+          result: {
+            type: Number,
+            required: false,
+          },
         },
       ],
+      // select: false,
       default: [],
     },
   },

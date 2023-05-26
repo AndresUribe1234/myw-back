@@ -15,6 +15,10 @@ const userSchema = new mongoose.Schema({
     trim: true,
   },
   name: String,
+  surname: String,
+  phoneNumber: Number,
+  countryCode: Number,
+  dateOfBirth: Date,
   password: {
     type: String,
     minLength: 8,
@@ -65,8 +69,16 @@ const userSchema = new mongoose.Schema({
           required: true,
           min: 0,
         },
+        mp_ref: {
+          type: Number,
+        },
+        result: {
+          type: Number,
+          required: false,
+        },
       },
     ],
+    select: false,
     default: [],
   },
 });
@@ -131,6 +143,16 @@ userSchema.methods.changedPasswordAfter = function (jwtTimestamp) {
   }
   return false;
 };
+
+// Populate events
+userSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "registeredEvents.eventId",
+    // select: ["title"],
+  });
+
+  next();
+});
 
 const User = mongoose.model("User", userSchema);
 

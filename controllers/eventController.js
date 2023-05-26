@@ -222,19 +222,21 @@ exports.eventRegistration = async (req, res) => {
     const userId = req.user._id;
 
     // Get price of registration from and event id from body
-    const { eventId, priceRegistration } = req.body;
+    const { eventId, priceRegistration, mp_ref } = req.body;
 
     // Find the user and the event from the database
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).select("+registeredEvents");
     const event = await Event.findById(eventId);
     // Check if user or event doesn't exist
     if (!user || !event) {
       throw new Error("User or event not found");
     }
     // Check if user is already registered for the event
+
     const isUserRegistered = event.registeredParticipants.some((participant) =>
       participant.userId.equals(user._id)
     );
+
     if (isUserRegistered) {
       throw new Error("User is already registered for this event");
     }
@@ -251,11 +253,17 @@ exports.eventRegistration = async (req, res) => {
       throw new Error("Event is full");
     }
 
+    // Verificar referencia de mp
+    if (event.suscriptionType === "Pagada" && !mp_ref) {
+      throw new Error("Falta el comprobante de Mercado Pago");
+    }
+
     // Create the participant object
     const participant = {
       userId: user._id,
       registrationDate: new Date(),
       priceRegistration: priceRegistration,
+      mp_ref,
     };
 
     // Add the user to the event's participants and update the event
@@ -266,6 +274,7 @@ exports.eventRegistration = async (req, res) => {
     const userEvent = {
       eventId: event._id,
       priceRegistration: priceRegistration,
+      mp_ref,
     };
 
     user.registeredEvents.push(userEvent);
@@ -278,6 +287,40 @@ exports.eventRegistration = async (req, res) => {
     console.log(err);
     res.status(400).json({
       status: "Failed: Could not complete registration!",
+      err: err.message,
+    });
+  }
+};
+
+exports.eventsPerUser = async (req, res) => {
+  try {
+    // Get user id
+    const id = req.user._id;
+
+    // See if user exist
+    const user = await User.findById(id).select("registeredEvents");
+
+    // Filter events
+    const currentDate = new Date();
+    const oldEvents = user.registeredEvents.filter((event) => {
+      const eventDate = new Date(event.eventId.eventDate);
+      return eventDate < currentDate; // Filter events that have already occurred
+    });
+
+    const futureEvents = user.registeredEvents.filter((event) => {
+      const eventDate = new Date(event.eventId.eventDate);
+      return eventDate >= currentDate; // Filter events that have already occurred
+    });
+
+    // 4)Send response to client
+    res.status(200).json({
+      status: "Success: Event fetched for user fetched!",
+      data: { oldEvents, futureEvents },
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({
+      status: "Failed: Could not fetch events for user!",
       err: err.message,
     });
   }

@@ -36,7 +36,6 @@ exports.signup = async (req, res) => {
 
     const allUsers = await User.find();
     const emailArray = allUsers.map((ele) => ele.email);
-    console.log(emailArray);
 
     // 3)Check if email already exist in existing users
     if (emailArray.includes(email)) {
@@ -61,7 +60,7 @@ exports.signup = async (req, res) => {
     };
 
     await sgMail.send(message);
-    console.log(verificationToken);
+
     const randomChar = Math.random();
 
     // 3)Create user
@@ -492,6 +491,69 @@ exports.forgotPasswordPostToken = async (req, res) => {
     console.log(err);
     res.status(400).json({
       status: "Failed: Password could not be changed!",
+      err: err.message,
+    });
+  }
+};
+
+exports.updateUserProfile = async (req, res) => {
+  try {
+    //Get user id from protection middleware
+    const id = req.user._id;
+
+    //Fetch user
+    let user = await User.findById(id);
+
+    if (!user) {
+      throw new Error("User does not exist!");
+    }
+
+    // Get information to update from body
+    const { name, surname, dateOfBirth, phoneNumber, countryCode } = req.body;
+
+    if (!name || !surname || !dateOfBirth || !phoneNumber || !countryCode) {
+      throw new Error("Information is missing!");
+    }
+
+    // Update information
+    user.name = name;
+    user.surname = surname;
+    user.dateOfBirth = dateOfBirth;
+    user.phoneNumber = phoneNumber;
+    user.countryCode = countryCode;
+    await user.save();
+
+    // 3)Send response to client
+    res.status(200).json({
+      status: "Success: User was updated!",
+      user,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({
+      status: "Failed: Could not update user!",
+      err: err.message,
+    });
+  }
+};
+
+exports.getUserByID = async (req, res) => {
+  try {
+    // 1)Get user email from protection middleware
+    const id = req.user._id;
+
+    //2)Find all user created events
+    const user = await User.findById(id);
+
+    // 3)Send response to client
+    res.status(200).json({
+      status: "Success: User was fetched!",
+      user,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({
+      status: "Failed: User could not be fetched!",
       err: err.message,
     });
   }

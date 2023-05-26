@@ -40,6 +40,7 @@ const eventRouter = require("./routes/eventRoute");
 app.use("/api/checkout", checkoutRouter);
 app.use("/api/authentication", authenticationRouter);
 app.use("/api/events", eventRouter);
+
 app.get("/", (req, res) => {
   res.send("Express JS on Vercel for myw app :)");
 });
