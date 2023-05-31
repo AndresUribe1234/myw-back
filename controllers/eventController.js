@@ -77,7 +77,7 @@ exports.createEvent = async (req, res) => {
   }
 };
 
-exports.allCreatedEvents = async (req, res) => {
+exports.allCreatedEventsByUser = async (req, res) => {
   try {
     // 1)Get user email from protection middleware
     const id = req.user._id;
@@ -321,6 +321,30 @@ exports.eventsPerUser = async (req, res) => {
     console.log(err);
     res.status(400).json({
       status: "Failed: Could not fetch events for user!",
+      err: err.message,
+    });
+  }
+};
+
+exports.fetchEventById = async (req, res) => {
+  try {
+    // Get user id
+    const id = req.query.id;
+
+    // See if user exist
+    const event = await Event.findById(id).populate(
+      "registeredParticipants.userId"
+    );
+
+    // 4)Send response to client
+    res.status(200).json({
+      status: "Success: Event fetched with id!",
+      event,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({
+      status: "Failed: Could not fetch event with id!",
       err: err.message,
     });
   }

@@ -49,7 +49,7 @@ exports.mercadoPagoCheckout = async (req, res) => {
         name: name,
         surname: surname,
         email: email,
-        phone: { area_code, number: Number(phone) },
+        phone: { area_code: String(area_code), number: Number(phone) },
       },
       back_urls: {
         success: `${process.env.MP_LINK_SUCCESS}/post-mp/success`,

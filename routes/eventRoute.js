@@ -6,8 +6,7 @@ const authController = require(`./../controllers/authController`);
 
 router
   .route("/")
-  .post(authController.protectRoutes, eventController.createEvent)
-  .get(authController.protectRoutes, eventController.allCreatedEvents);
+  .get(authController.protectRoutes, eventController.allCreatedEventsByUser);
 
 router.route("/all").get(eventController.allEvents);
 
@@ -17,10 +16,13 @@ router.route("/detail/:id").get(eventController.eventDetails);
 
 router
   .route("/registration")
+  .get(authController.protectRoutes, eventController.eventsPerUser)
   .post(authController.protectRoutes, eventController.eventRegistration);
 
 router
   .route("/user")
-  .get(authController.protectRoutes, eventController.eventsPerUser);
+  .get(authController.protectRoutes, eventController.fetchEventById)
+  .post(authController.protectRoutes, eventController.createEvent)
+  .patch(authController.protectRoutes, eventController.fetchEventById);
 
 module.exports = router;
