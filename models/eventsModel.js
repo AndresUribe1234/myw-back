@@ -54,6 +54,10 @@ const eventSchema = new Schema(
       required: true,
       min: Date.now,
     },
+    address: {
+      type: Schema.Types.Mixed, // or Schema.Types.Object
+      required: false,
+    },
     location: {
       type: {
         type: String,

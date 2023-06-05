@@ -18,6 +18,8 @@ exports.createEvent = async (req, res) => {
       modalityType,
       suscriptionType,
       nameOrganizer,
+      addressMongo,
+      location,
     } = req.body;
 
     // 2)Check if information is missing
@@ -45,7 +47,6 @@ exports.createEvent = async (req, res) => {
     // 4)Check if type of suscription is free type of event should be 0
     console.log(suscriptionType === "Gratuita");
     if (suscriptionType === "Gratuita") {
-      console.log("inside");
       registrationFee = 0;
     }
 
@@ -62,6 +63,8 @@ exports.createEvent = async (req, res) => {
       modalityType,
       suscriptionType,
       nameOrganizer,
+      address: addressMongo,
+      location,
     });
 
     // 5)Send response to client
@@ -300,14 +303,18 @@ exports.eventsPerUser = async (req, res) => {
     // See if user exist
     const user = await User.findById(id).select("registeredEvents");
 
+    const userCleanedForDeletedEvents = user.registeredEvents.filter(
+      (event) => event.eventId !== null
+    );
+
     // Filter events
     const currentDate = new Date();
-    const oldEvents = user.registeredEvents.filter((event) => {
+    const oldEvents = userCleanedForDeletedEvents.filter((event) => {
       const eventDate = new Date(event.eventId.eventDate);
       return eventDate < currentDate; // Filter events that have already occurred
     });
 
-    const futureEvents = user.registeredEvents.filter((event) => {
+    const futureEvents = userCleanedForDeletedEvents.filter((event) => {
       const eventDate = new Date(event.eventId.eventDate);
       return eventDate >= currentDate; // Filter events that have already occurred
     });
