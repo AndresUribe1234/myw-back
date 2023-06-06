@@ -356,3 +356,63 @@ exports.fetchEventById = async (req, res) => {
     });
   }
 };
+
+exports.updatedEventInformation = async (req, res) => {
+  try {
+    let {
+      title,
+      description,
+      organizerName: nameOrganizer,
+      eventDate,
+      longitude,
+      latitude,
+      address,
+      registrationFee,
+      currency,
+      maxParticipants,
+      subscriptionType: suscriptionType,
+      modalityType,
+      eventType,
+      eventId,
+    } = req.body;
+
+    console.log(req.body);
+
+    const newCoordinates = [longitude, latitude];
+
+    const event = await Event.findById(eventId);
+
+    console.log(event);
+
+    if (event && latitude && longitude) {
+      event.location = {
+        type: "Point",
+        coordinates: newCoordinates,
+      };
+    }
+
+    event.title = title ?? event.title;
+    event.description = description ?? event.description;
+    event.nameOrganizer = nameOrganizer ?? event.nameOrganizer;
+    event.eventDate = eventDate ?? event.eventDate;
+    event.address = address ?? event.address;
+    event.registrationFee = registrationFee ?? event.registrationFee;
+    event.currency = currency ?? event.currency;
+    event.maxParticipants = maxParticipants ?? event.maxParticipants;
+    event.suscriptionType = suscriptionType ?? event.suscriptionType;
+    event.modalityType = modalityType ?? event.modalityType;
+    event.eventType = eventType ?? event.eventType;
+
+    await event.save();
+
+    // 4)Send response to client
+    res.status(200).json({
+      status: "Success: Event was updated!",
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({
+      status: "Failed: Could not update event information!",
+    });
+  }
+};

@@ -23,6 +23,6 @@ router
   .route("/user")
   .get(authController.protectRoutes, eventController.fetchEventById)
   .post(authController.protectRoutes, eventController.createEvent)
-  .patch(authController.protectRoutes, eventController.fetchEventById);
+  .patch(authController.protectRoutes, eventController.updatedEventInformation);
 
 module.exports = router;
